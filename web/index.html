@@ -3,75 +3,214 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111318">
   <title>Lua 5.5 → Luac</title>
   <style>
-    :root { color-scheme: dark; }
-    * { box-sizing: border-box; }
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+    }
     body {
-      margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #111318; color: #f1f3f5;
+      margin: 0;
+      background: #111318;
+      color: #f1f3f5;
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
     }
-    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
-    h1 { margin: 0 0 6px; }
-    .sub { color: #aeb4c0; margin: 0 0 20px; }
-    .bar, .panel {
-      background: #1a1d24; border: 1px solid #303541; border-radius: 12px;
-      padding: 14px; margin-bottom: 14px;
+    main {
+      width: min(1100px, 100%);
+      margin: auto;
+      padding: 24px;
     }
-    .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    button, input[type=file] {
-      font: inherit; border: 1px solid #454b59; border-radius: 8px; padding: 9px 12px;
-      background: #252a34; color: #fff;
+    h1 {
+      margin: 0 0 6px;
     }
-    button { cursor: pointer; }
-    button:hover { background: #303644; }
-    button.primary { background: #3b63d8; border-color: #4c72e5; }
-    label { display: inline-flex; gap: 7px; align-items: center; color: #d4d8df; }
+    h3 {
+      margin-top: 0;
+    }
+    .sub {
+      color: #aeb4c0;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .bar,
+    .panel {
+      background: #1a1d24;
+      border: 1px solid #303541;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    button,
+    input[type="file"] {
+      font: inherit;
+      border: 1px solid #454b59;
+      border-radius: 8px;
+      padding: 9px 12px;
+      background: #252a34;
+      color: #fff;
+    }
+    button {
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) {
+      background: #303644;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button.primary {
+      background: #3b63d8;
+      border-color: #4c72e5;
+    }
+    label {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      color: #d4d8df;
+    }
     textarea {
-      width: 100%; min-height: 430px; resize: vertical; border-radius: 9px;
-      border: 1px solid #3b404d; background: #0d0f13; color: #e8ebef;
-      padding: 14px; font: 14px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+      width: 100%;
+      min-height: 430px;
+      resize: vertical;
+      border-radius: 9px;
+      border: 1px solid #3b404d;
+      background: #0d0f13;
+      color: #e8ebef;
+      padding: 14px;
+      font:
+        14px/1.5
+        ui-monospace,
+        SFMono-Regular,
+        Consolas,
+        monospace;
       tab-size: 2;
     }
     pre {
-      white-space: pre-wrap; word-break: break-word; margin: 0; max-height: 240px; overflow: auto;
-      background: #0d0f13; padding: 12px; border-radius: 8px; color: #cbd1dc;
-      font: 13px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      max-height: 300px;
+      overflow: auto;
+      background: #0d0f13;
+      padding: 12px;
+      border-radius: 8px;
+      color: #cbd1dc;
+      font:
+        13px/1.45
+        ui-monospace,
+        SFMono-Regular,
+        Consolas,
+        monospace;
     }
-    .status { color: #aeb4c0; margin-left: auto; }
-    .ok { color: #79d98c; } .err { color: #ff8585; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .status { width: 100%; margin-left: 0; } }
-    small { color: #8f96a3; }
+    .status {
+      color: #aeb4c0;
+      margin-left: auto;
+    }
+    .ok {
+      color: #79d98c;
+    }
+    .err {
+      color: #ff8585;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    small {
+      color: #8f96a3;
+    }
+    code {
+      font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Consolas,
+        monospace;
+    }
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .status {
+        width: 100%;
+        margin-left: 0;
+      }
+      main {
+        padding: 14px;
+      }
+    }
   </style>
 </head>
 <body>
 <main>
   <h1>Lua 5.5 → Luac</h1>
-  <p class="sub">Compiles Lua source locally in your browser using the official Lua 5.5.1 compiler built to WebAssembly.</p>
-
+  <p class="sub">
+    Lua 5.5.1 bytecode compiler running entirely in your browser.
+  </p>
   <div class="bar">
-    <input id="file" type="file" accept=".lua,text/plain">
-    <button id="compile" class="primary">Compile to .luac</button>
-    <button id="download" disabled>Download .luac</button>
-    <label><input id="strip" type="checkbox"> Strip debug information (<code>-s</code>)</label>
-    <span id="status" class="status">Loading Lua 5.5.1 compiler…</span>
+    <input
+      id="file"
+      type="file"
+      accept=".lua,text/plain"
+    >
+    <button
+      id="compile"
+      class="primary"
+      disabled
+    >
+      Compile to .luac
+    </button>
+    <button
+      id="download"
+      disabled
+    >
+      Download .luac
+    </button>
+    <label>
+      <input
+        id="strip"
+        type="checkbox"
+      >
+      Strip debug information
+    </label>
+    <span
+      id="status"
+      class="status"
+    >
+      Loading Lua 5.5.1 compiler…
+    </span>
   </div>
-
   <div class="panel">
-    <textarea id="source" spellcheck="false">-- Lua 5.5 example
+    <textarea
+      id="source"
+      spellcheck="false"
+    >-- Lua 5.5 example
 local function hello(name)
   return "Hello, " .. name .. "!"
 end
-
 print(hello("Lua 5.5"))</textarea>
-    <small>Input is compiled as a Lua 5.5 chunk. No server is required after the WASM files are loaded.</small>
+    <small>
+      The Lua source is compiled locally. It is not uploaded to a server.
+    </small>
   </div>
-
   <div class="grid">
     <div class="panel">
       <h3>Compiler output</h3>
-      <pre id="output">Waiting for compiler…</pre>
+      <pre id="output">Loading compiler…</pre>
     </div>
     <div class="panel">
       <h3>Generated chunk</h3>
@@ -79,11 +218,8 @@ print(hello("Lua 5.5"))</textarea>
     </div>
   </div>
 </main>
-
 <script type="module">
-  import createLuacModule from "./luac.js";
-
-  const $ = id => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
   const source = $("source");
   const file = $("file");
   const compile = $("compile");
@@ -92,96 +228,244 @@ print(hello("Lua 5.5"))</textarea>
   const status = $("status");
   const output = $("output");
   const hex = $("hex");
-
-  let Module;
+  let Module = null;
   let lastBytes = null;
   let lastName = "script";
-
-  function setStatus(text, cls = "") {
+  function setStatus(text, className = "") {
     status.textContent = text;
-    status.className = "status " + cls;
+    status.className =
+      "status " + className;
   }
-
   function hexDump(bytes, max = 512) {
-    const n = Math.min(bytes.length, max);
-    let lines = [];
-    for (let i = 0; i < n; i += 16) {
-      const row = bytes.slice(i, Math.min(i + 16, n));
-      const left = Array.from(row, b => b.toString(16).padStart(2, "0")).join(" ");
-      const right = Array.from(row, b => (b >= 32 && b <= 126) ? String.fromCharCode(b) : ".").join("");
-      lines.push(i.toString(16).padStart(8, "0") + "  " + left.padEnd(47, " ") + "  " + right);
+    const count =
+      Math.min(bytes.length, max);
+    const lines = [];
+    for (
+      let i = 0;
+      i < count;
+      i += 16
+    ) {
+      const row =
+        bytes.slice(
+          i,
+          Math.min(i + 16, count)
+        );
+      const left =
+        Array.from(
+          row,
+          b =>
+            b
+              .toString(16)
+              .padStart(2, "0")
+        ).join(" ");
+      const right =
+        Array.from(
+          row,
+          b =>
+            b >= 32 && b <= 126
+              ? String.fromCharCode(b)
+              : "."
+        ).join("");
+      lines.push(
+        i
+          .toString(16)
+          .padStart(8, "0") +
+        "  " +
+        left.padEnd(47, " ") +
+        "  " +
+        right
+      );
     }
-    if (bytes.length > max) lines.push(`… ${bytes.length - max} more bytes`);
-    return lines.join("\\n");
+    if (bytes.length > max) {
+      lines.push(
+        `… ${bytes.length - max} more bytes`
+      );
+    }
+    return lines.join("\n");
   }
-
-  try {
-    Module = await createLuacModule({
-      locateFile: (path) => path.endsWith(".wasm") ? "./luac.wasm" : path,
-      print: text => { output.textContent += text + "\\n"; },
-      printErr: text => { output.textContent += text + "\\n"; }
-    });
-    setStatus("Lua 5.5.1 compiler ready", "ok");
-    output.textContent = "Ready.";
-  } catch (e) {
-    console.error(e);
-    setStatus("Failed to load WASM", "err");
-    output.textContent = String(e);
-  }
-
-  file.addEventListener("change", async () => {
-    const f = file.files?.[0];
-    if (!f) return;
-    source.value = await f.text();
-    lastName = f.name.replace(/\\.lua$/i, "") || "script";
-    output.textContent = `Loaded ${f.name}`;
-  });
-
-  compile.addEventListener("click", () => {
-    if (!Module) return;
-    output.textContent = "";
-    download.disabled = true;
-    lastBytes = null;
-
+  async function loadCompiler() {
     try {
-      const inputPath = "/input.lua";
-      const outputPath = "/output.luac";
-      try { Module.FS.unlink(inputPath); } catch {}
-      try { Module.FS.unlink(outputPath); } catch {}
-
-      const bytes = new TextEncoder().encode(source.value);
-      Module.FS.writeFile(inputPath, bytes);
-
-      const args = [];
-      if (strip.checked) args.push("-s");
-      args.push("-o", outputPath, inputPath);
-
-      const rc = Module.callMain(args);
-      if (rc !== 0) throw new Error(`luac exited with code ${rc}`);
-
-      lastBytes = Module.FS.readFile(outputPath, { encoding: "binary" });
-      hex.textContent = hexDump(lastBytes);
-      download.disabled = false;
-      setStatus(`Compiled ${lastBytes.length.toLocaleString()} bytes`, "ok");
-      output.textContent += "Compilation successful.\\n";
-    } catch (e) {
-      console.error(e);
-      output.textContent += (e?.message || String(e)) + "\\n";
-      setStatus("Compilation failed", "err");
+      output.textContent =
+        "Loading luac.js…";
+      const moduleLoader =
+        await import("./luac.js");
+      if (
+        !moduleLoader.default
+      ) {
+        throw new Error(
+          "luac.js loaded, but did not export the Emscripten module."
+        );
+      }
+      output.textContent =
+        "Loading luac.wasm…";
+      Module =
+        await moduleLoader.default({
+          locateFile(path) {
+            if (
+              path.endsWith(".wasm")
+            ) {
+              return "./luac.wasm";
+            }
+            return path;
+          },
+          print(text) {
+            output.textContent +=
+              text + "\n";
+          },
+          printErr(text) {
+            output.textContent +=
+              text + "\n";
+          }
+        });
+      setStatus(
+        "Lua 5.5.1 compiler ready",
+        "ok"
+      );
+      output.textContent =
+        "Lua 5.5.1 compiler ready.";
+      compile.disabled = false;
+    } catch (error) {
+      console.error(error);
+      setStatus(
+        "Compiler failed to load",
+        "err"
+      );
+      output.textContent =
+        "Could not load the Lua 5.5.1 WebAssembly compiler.\n\n" +
+        "Make sure these files exist beside index.html:\n\n" +
+        "  index.html\n" +
+        "  luac.js\n" +
+        "  luac.wasm\n\n" +
+        "Error:\n" +
+        String(error);
     }
-  });
-
-  download.addEventListener("click", () => {
-    if (!lastBytes) return;
-    const blob = new Blob([lastBytes], { type: "application/octet-stream" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${lastName}.luac`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  });
+  }
+  file.addEventListener(
+    "change",
+    async () => {
+      const selected =
+        file.files?.[0];
+      if (!selected) {
+        return;
+      }
+      source.value =
+        await selected.text();
+      lastName =
+        selected.name
+          .replace(/\.lua$/i, "") ||
+        "script";
+      output.textContent =
+        `Loaded ${selected.name}`;
+    }
+  );
+  compile.addEventListener(
+    "click",
+    () => {
+      if (!Module) {
+        return;
+      }
+      output.textContent =
+        "Compiling…\n";
+      download.disabled = true;
+      lastBytes = null;
+      const inputPath =
+        "/input.lua";
+      const outputPath =
+        "/output.luac";
+      try {
+        try {
+          Module.FS.unlink(inputPath);
+        } catch {}
+        try {
+          Module.FS.unlink(outputPath);
+        } catch {}
+        const sourceBytes =
+          new TextEncoder().encode(
+            source.value
+          );
+        Module.FS.writeFile(
+          inputPath,
+          sourceBytes
+        );
+        const args = [];
+        if (strip.checked) {
+          args.push("-s");
+        }
+        args.push(
+          "-o",
+          outputPath,
+          inputPath
+        );
+        const returnCode =
+          Module.callMain(args);
+        if (returnCode !== 0) {
+          throw new Error(
+            `luac exited with code ${returnCode}`
+          );
+        }
+        lastBytes =
+          Module.FS.readFile(
+            outputPath,
+            {
+              encoding: "binary"
+            }
+          );
+        hex.textContent =
+          hexDump(lastBytes);
+        download.disabled =
+          false;
+        setStatus(
+          `Compiled ${lastBytes.length.toLocaleString()} bytes`,
+          "ok"
+        );
+        output.textContent +=
+          "\nCompilation successful.";
+      } catch (error) {
+        console.error(error);
+        output.textContent +=
+          "\n\n" +
+          (
+            error?.message ||
+            String(error)
+          );
+        setStatus(
+          "Compilation failed",
+          "err"
+        );
+      }
+    }
+  );
+  download.addEventListener(
+    "click",
+    () => {
+      if (!lastBytes) {
+        return;
+      }
+      const blob =
+        new Blob(
+          [lastBytes],
+          {
+            type:
+              "application/octet-stream"
+          }
+        );
+      const url =
+        URL.createObjectURL(blob);
+      const link =
+        document.createElement("a");
+      link.href = url;
+      link.download =
+        `${lastName}.luac`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(
+        () => URL.revokeObjectURL(url),
+        1000
+      );
+    }
+  );
+  loadCompiler();
 </script>
 </body>
 </html>
